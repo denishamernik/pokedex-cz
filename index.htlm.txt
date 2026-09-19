@@ -1,0 +1,940 @@
+<!DOCTYPE html>
+<html lang="cs" class="dark scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pokémon Hub & Store Česko — Pokédex 1025, Balíčky & Sbírka</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        poke: {
+                            red: '#EE1515',
+                            darkred: '#CC0000',
+                            gold: '#FFD700',
+                            dark: '#0f172a'
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    <!-- Google Fonts & Lucide Icons -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&display=swap" rel="stylesheet">
+    <script src="https://unpkg.com/lucide@latest"></script>
+    
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            user-select: none;
+        }
+
+        .pokeball-bg {
+            background: radial-gradient(circle at 50% 0%, rgba(238,21,21,0.15) 0%, rgba(15,23,42,0) 70%);
+        }
+
+        /* Czech Pokemon Type Badge Styles */
+        .type-normal { background-color: #A8A878; color: white; }
+        .type-fire { background-color: #F08030; color: white; }
+        .type-water { background-color: #6890F0; color: white; }
+        .type-grass { background-color: #78C850; color: white; }
+        .type-electric { background-color: #F8D030; color: #1f2937; }
+        .type-ice { background-color: #98D8D8; color: #1f2937; }
+        .type-fighting { background-color: #C03028; color: white; }
+        .type-poison { background-color: #A040A0; color: white; }
+        .type-ground { background-color: #E0C068; color: #1f2937; }
+        .type-flying { background-color: #A890F0; color: white; }
+        .type-psychic { background-color: #F85888; color: white; }
+        .type-bug { background-color: #A8B820; color: white; }
+        .type-rock { background-color: #B8A038; color: white; }
+        .type-ghost { background-color: #705898; color: white; }
+        .type-dragon { background-color: #7038F8; color: white; }
+        .type-dark { background-color: #705848; color: white; }
+        .type-steel { background-color: #B8B8D0; color: #1f2937; }
+        .type-fairy { background-color: #EE99AC; color: white; }
+
+        /* Holo card shiny foil effect */
+        .holo-card {
+            position: relative;
+            overflow: hidden;
+        }
+        .holo-card::after {
+            content: "";
+            position: absolute;
+            inset: -50%;
+            background: linear-gradient(115deg, transparent 20%, rgba(255,255,255,0.4) 40%, rgba(255,215,0,0.5) 50%, rgba(255,0,128,0.4) 60%, transparent 80%);
+            transform: translateX(-100%) rotate(25deg);
+            transition: transform 0.8s ease;
+            pointer-events: none;
+        }
+        .holo-card:hover::after {
+            transform: translateX(100%) rotate(25deg);
+        }
+
+        .silhouette {
+            filter: brightness(0) drop-shadow(0 0 12px rgba(255,255,255,0.3));
+        }
+
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: rgba(0,0,0,0.2); }
+        ::-webkit-scrollbar-thumb { background: #EE1515; border-radius: 4px; }
+    </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen antialiased transition-colors duration-300 pokeball-bg">
+
+    <header class="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-20">
+                
+                <!-- Logo -->
+                <div class="flex items-center gap-3 cursor-pointer" onclick="switchTab('pokedex')">
+                    <div class="w-11 h-11 rounded-full bg-poke-red border-4 border-slate-900 flex items-center justify-center relative shadow-lg shadow-red-500/30 overflow-hidden">
+                        <div class="absolute inset-x-0 bottom-0 h-1/2 bg-white"></div>
+                        <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-900"></div>
+                        <div class="w-3.5 h-3.5 rounded-full bg-white border-2 border-slate-900 z-10"></div>
+                    </div>
+                    <div>
+                        <h1 class="text-xl sm:text-2xl font-black tracking-wider text-white">Pokémon <span class="text-poke-red">Hub</span></h1>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-widest">Pokédex 1025 & Obchod</p>
+                    </div>
+                </div>
+
+                <!-- Navigation Tabs -->
+                <nav class="hidden md:flex items-center gap-2">
+                    <button id="nav-pokedex" onclick="switchTab('pokedex')" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-poke-red text-white shadow-lg shadow-red-500/20 transition-all">
+                        <i data-lucide="book-open" class="w-4 h-4"></i> Pokédex
+                    </button>
+                    <button id="nav-store" onclick="switchTab('store')" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-all">
+                        <i data-lucide="shopping-bag" class="w-4 h-4"></i> Obchod Balíčků
+                    </button>
+                    <button id="nav-binder" onclick="switchTab('binder')" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-all">
+                        <i data-lucide="layers" class="w-4 h-4"></i> Moje Sbírka
+                    </button>
+                    <button id="nav-game" onclick="switchTab('game')" class="px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition-all">
+                        <i data-lucide="gamepad-2" class="w-4 h-4"></i> Kvíz
+                    </button>
+                </nav>
+
+                <!-- Wallet balance & Mobile menu btn -->
+                <div class="flex items-center gap-3">
+                    <div class="flex items-center gap-2 bg-amber-500/10 border border-amber-500/30 px-3.5 py-1.5 rounded-xl text-amber-400 font-extrabold text-sm shadow-inner">
+                        <i data-lucide="coins" class="w-4 h-4"></i>
+                        <span id="user-coins">1 000</span> Kč
+                        <button onclick="addCoins(500)" title="Přidat zdarma 500 Kč" class="ml-1 text-slate-400 hover:text-amber-300 text-xs bg-amber-500/20 rounded-md px-1.5 py-0.5">+</button>
+                    </div>
+
+                    <button id="mobile-menu-btn" onclick="toggleMobileMenu()" class="md:hidden p-2 rounded-xl bg-slate-800 border border-slate-700 text-slate-300">
+                        <i data-lucide="menu" class="w-6 h-6"></i>
+                    </button>
+                </div>
+
+            </div>
+            
+            <!-- Mobile Navigation Drawer -->
+            <div id="mobile-menu" class="hidden md:hidden pb-4 pt-2 border-t border-slate-800 space-y-2">
+                <button onclick="switchTab('pokedex'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-3 bg-slate-800 text-white">
+                    <i data-lucide="book-open" class="w-4 h-4 text-poke-red"></i> Pokédex (1025)
+                </button>
+                <button onclick="switchTab('store'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-3 bg-slate-800 text-white">
+                    <i data-lucide="shopping-bag" class="w-4 h-4 text-amber-400"></i> Obchod s Balíčky
+                </button>
+                <button onclick="switchTab('binder'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-3 bg-slate-800 text-white">
+                    <i data-lucide="layers" class="w-4 h-4 text-emerald-400"></i> Moje Sbírka Karet
+                </button>
+                <button onclick="switchTab('game'); toggleMobileMenu()" class="w-full text-left px-4 py-2.5 rounded-xl text-sm font-bold flex items-center gap-3 bg-slate-800 text-white">
+                    <i data-lucide="gamepad-2" class="w-4 h-4 text-sky-400"></i> Kvíz
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+        
+        <section id="pokedex-section" class="space-y-6">
+            
+            <!-- Filter Bar -->
+            <div class="bg-slate-900/80 backdrop-blur border border-slate-800 rounded-2xl p-4 sm:p-6 shadow-xl space-y-4">
+                <div class="grid grid-cols-1 md:grid-cols-12 gap-4">
+                    
+                    <!-- Search Input -->
+                    <div class="md:col-span-4 relative">
+                        <i data-lucide="search" class="w-5 h-5 absolute left-4 top-1/2 -translate-y-1/2 text-slate-400"></i>
+                        <input type="text" id="search-input" placeholder="Hledat podle jména nebo #ID..." 
+                               class="w-full pl-11 pr-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white placeholder-slate-500 focus:outline-none focus:border-poke-red text-sm font-medium transition-all">
+                    </div>
+
+                    <!-- Generation Filter -->
+                    <div class="md:col-span-3">
+                        <select id="gen-select" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-poke-red text-sm font-medium transition-all cursor-pointer">
+                            <option value="all">Všechny Generace (1 - 9)</option>
+                            <option value="1">Gen 1: Kanto (#1 - #151)</option>
+                            <option value="2">Gen 2: Johto (#152 - #251)</option>
+                            <option value="3">Gen 3: Hoenn (#252 - #386)</option>
+                            <option value="4">Gen 4: Sinnoh (#387 - #493)</option>
+                            <option value="5">Gen 5: Unova (#494 - #649)</option>
+                            <option value="6">Gen 6: Kalos (#650 - #721)</option>
+                            <option value="7">Gen 7: Alola (#722 - #809)</option>
+                            <option value="8">Gen 8: Galar (#810 - #905)</option>
+                            <option value="9">Gen 9: Paldea (#906 - #1025)</option>
+                        </select>
+                    </div>
+
+                    <!-- Type Filter -->
+                    <div class="md:col-span-3">
+                        <select id="type-select" class="w-full px-4 py-3 bg-slate-950 border border-slate-800 rounded-xl text-white focus:outline-none focus:border-poke-red text-sm font-medium transition-all cursor-pointer">
+                            <option value="all">Všechny Typy</option>
+                            <option value="normal">Normální (Normal)</option>
+                            <option value="fire">Ohnivý (Fire)</option>
+                            <option value="water">Vodní (Water)</option>
+                            <option value="grass">Travní (Grass)</option>
+                            <option value="electric">Bleskový (Electric)</option>
+                            <option value="ice">Ledový (Ice)</option>
+                            <option value="fighting">Bojový (Fighting)</option>
+                            <option value="poison">Jedovatý (Poison)</option>
+                            <option value="ground">Zemní (Ground)</option>
+                            <option value="flying">Létající (Flying)</option>
+                            <option value="psychic">Psychický (Psychic)</option>
+                            <option value="bug">Hmyzí (Bug)</option>
+                            <option value="rock">Kamenný (Rock)</option>
+                            <option value="ghost">Duchovní (Ghost)</option>
+                            <option value="dragon">Dračí (Dragon)</option>
+                            <option value="dark">Temný (Dark)</option>
+                            <option value="steel">Ocelový (Steel)</option>
+                            <option value="fairy">Vílí (Fairy)</option>
+                        </select>
+                    </div>
+
+                    <!-- Favorites Toggle Button -->
+                    <div class="md:col-span-2">
+                        <button id="fav-toggle-btn" onclick="toggleFavFilter()" class="w-full h-full py-3 px-4 rounded-xl text-xs font-bold flex items-center justify-center gap-2 bg-slate-950 border border-slate-800 text-slate-300 hover:text-red-400 transition-all">
+                            <i data-lucide="heart" class="w-4 h-4" id="fav-btn-icon"></i>
+                            <span>Oblíbené</span>
+                        </button>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Grid Container -->
+            <div id="pokemon-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                <!-- Dynamically generated pokemon cards -->
+            </div>
+
+            <!-- Loader Spinner -->
+            <div id="pokedex-loader" class="py-12 flex flex-col items-center justify-center space-y-3">
+                <div class="w-12 h-12 rounded-full bg-poke-red border-4 border-white flex items-center justify-center relative shadow-xl animate-spin">
+                    <div class="absolute inset-x-0 bottom-0 h-1/2 bg-white"></div>
+                    <div class="absolute inset-x-0 top-1/2 -translate-y-1/2 h-1 bg-slate-900"></div>
+                    <div class="w-3 h-3 rounded-full bg-white border-2 border-slate-900 z-10"></div>
+                </div>
+                <p class="text-slate-400 font-bold text-xs">Načítám databázi Pokémonů...</p>
+            </div>
+
+            <!-- Load More Button -->
+            <div id="load-more-container" class="text-center pt-4 hidden">
+                <button onclick="loadMorePokemons()" class="px-8 py-3 bg-slate-800 hover:bg-slate-700 border border-slate-700 text-white font-bold text-sm rounded-xl shadow-lg transition-all">
+                    Načíst další Pokémony
+                </button>
+            </div>
+
+        </section>
+
+        <section id="store-section" class="hidden space-y-8">
+            
+            <div class="text-center max-w-2xl mx-auto space-y-2">
+                <h2 class="text-3xl font-black text-white">Obchod s Balíčky (Booster Packs)</h2>
+                <p class="text-slate-400 text-sm">Otevřete vzácné kartičky do své sbírky. Každý balíček obsahuje 5 náhodných karet!</p>
+            </div>
+
+            <!-- Booster Pack Cards Store Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+                
+                <!-- Pack 1 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-4 hover:border-amber-500/50 transition-all flex flex-col justify-between shadow-xl">
+                    <div class="space-y-2">
+                        <div class="w-28 h-40 mx-auto bg-gradient-to-tr from-red-600 via-poke-red to-orange-500 rounded-xl p-3 shadow-xl border-2 border-amber-300 flex flex-col justify-between relative overflow-hidden">
+                            <div class="absolute -right-4 -top-4 w-12 h-12 bg-white/20 rounded-full blur-md"></div>
+                            <span class="text-[10px] font-black text-white bg-slate-950/60 px-2 py-0.5 rounded-md inline-block">GEN 1</span>
+                            <i data-lucide="flame" class="w-12 h-12 text-white/80 mx-auto"></i>
+                            <p class="text-xs font-black text-white tracking-wider uppercase">151 Classic</p>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Klasická edice 151</h3>
+                        <p class="text-xs text-slate-400">Původní Pokémoni z Kanto regionu s Charizardem a Pikachu!</p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="buyAndOpenPack('151', 250)" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span>Koupit za 250 Kč</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pack 2 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-4 hover:border-purple-500/50 transition-all flex flex-col justify-between shadow-xl">
+                    <div class="space-y-2">
+                        <div class="w-28 h-40 mx-auto bg-gradient-to-tr from-purple-700 via-indigo-600 to-sky-500 rounded-xl p-3 shadow-xl border-2 border-purple-300 flex flex-col justify-between relative overflow-hidden">
+                            <span class="text-[10px] font-black text-white bg-slate-950/60 px-2 py-0.5 rounded-md inline-block">GEN 9</span>
+                            <i data-lucide="sparkles" class="w-12 h-12 text-white/80 mx-auto"></i>
+                            <p class="text-xs font-black text-white tracking-wider uppercase">Scarlet & Violet</p>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Scarlet & Violet</h3>
+                        <p class="text-xs text-slate-400">Nejnovější Pokémoni z Paldea regionu a vzácné ex karty!</p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="buyAndOpenPack('sv', 300)" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span>Koupit za 300 Kč</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pack 3 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-4 hover:border-cyan-500/50 transition-all flex flex-col justify-between shadow-xl">
+                    <div class="space-y-2">
+                        <div class="w-28 h-40 mx-auto bg-gradient-to-tr from-slate-900 via-cyan-900 to-emerald-600 rounded-xl p-3 shadow-xl border-2 border-cyan-400 flex flex-col justify-between relative overflow-hidden">
+                            <span class="text-[10px] font-black text-cyan-300 bg-slate-950/80 px-2 py-0.5 rounded-md inline-block">SHINY</span>
+                            <i data-lucide="stars" class="w-12 h-12 text-cyan-300 mx-auto"></i>
+                            <p class="text-xs font-black text-cyan-300 tracking-wider uppercase">Paldean Fates</p>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Paldean Fates</h3>
+                        <p class="text-xs text-slate-400">Speciální edice plná vzácných třpytivých Shiny Pokémonů!</p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="buyAndOpenPack('shiny', 450)" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span>Koupit za 450 Kč</span>
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Pack 4 -->
+                <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 text-center space-y-4 hover:border-yellow-500/50 transition-all flex flex-col justify-between shadow-xl">
+                    <div class="space-y-2">
+                        <div class="w-28 h-40 mx-auto bg-gradient-to-tr from-amber-600 via-yellow-500 to-emerald-500 rounded-xl p-3 shadow-xl border-2 border-yellow-200 flex flex-col justify-between relative overflow-hidden">
+                            <span class="text-[10px] font-black text-white bg-slate-950/60 px-2 py-0.5 rounded-md inline-block">LEGENDARY</span>
+                            <i data-lucide="crown" class="w-12 h-12 text-white/90 mx-auto"></i>
+                            <p class="text-xs font-black text-white tracking-wider uppercase">Crown Zenith</p>
+                        </div>
+                        <h3 class="text-lg font-black text-white">Crown Zenith</h3>
+                        <p class="text-xs text-slate-400">Prémiová edice s nejvyšší šancí na legendární karty!</p>
+                    </div>
+                    <div class="pt-2">
+                        <button onclick="buyAndOpenPack('legend', 600)" class="w-full py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-lg transition-all flex items-center justify-center gap-2">
+                            <span>Koupit za 600 Kč</span>
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+
+        </section>
+
+        <section id="binder-section" class="hidden space-y-6">
+            <div class="bg-slate-900 border border-slate-800 rounded-2xl p-6 flex flex-col md:flex-row items-center justify-between gap-4">
+                <div>
+                    <h2 class="text-2xl font-black text-white">Moje Sbírka Karet</h2>
+                    <p class="text-xs text-slate-400 mt-1">Všechny karty získané z rozbalování balíčků.</p>
+                </div>
+                <div class="flex items-center gap-6">
+                    <div class="text-center">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Celkem karet</p>
+                        <p id="total-cards-count" class="text-xl font-black text-white">0</p>
+                    </div>
+                    <div class="text-center border-l border-slate-800 pl-6">
+                        <p class="text-xs text-slate-400 font-bold uppercase">Hodnota sbírky</p>
+                        <p id="total-cards-value" class="text-xl font-black text-emerald-400">0 Kč</p>
+                    </div>
+                </div>
+            </div>
+
+            <div id="binder-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-4">
+                <!-- User collected cards -->
+            </div>
+
+            <div id="empty-binder" class="text-center py-16 bg-slate-900/50 border border-slate-800 rounded-2xl">
+                <i data-lucide="layers" class="w-12 h-12 text-slate-600 mx-auto mb-3"></i>
+                <h3 class="text-lg font-bold text-white">Zatím nemáte žádné karty</h3>
+                <p class="text-xs text-slate-400 mt-1">Navštivte obchod a otevřete svůj první Pokémon balíček!</p>
+                <button onclick="switchTab('store')" class="mt-4 px-5 py-2.5 bg-amber-500 text-slate-950 font-bold text-xs rounded-xl shadow-lg">Přejít do obchodu</button>
+            </div>
+        </section>
+
+        <section id="game-section" class="hidden max-w-2xl mx-auto space-y-8">
+            <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 sm:p-8 shadow-2xl text-center space-y-6">
+                
+                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
+                    <div class="flex items-center gap-2">
+                        <div class="w-3 h-3 rounded-full bg-poke-red animate-ping"></div>
+                        <span class="text-xs font-bold text-slate-300 uppercase">Poznej Pokémona</span>
+                    </div>
+                    <div class="flex items-center gap-4 text-sm font-black">
+                        <span class="text-slate-400">Skóre: <span id="game-score" class="text-emerald-400">0</span></span>
+                        <span class="text-slate-400">Odměna za výhru: <span class="text-amber-400">+50 Kč</span></span>
+                    </div>
+                </div>
+
+                <h2 class="text-2xl sm:text-3xl font-black text-white">Kdo je ten Pokémon?</h2>
+
+                <div class="relative w-60 h-60 mx-auto bg-slate-950 rounded-2xl border border-slate-800 flex items-center justify-center p-6 shadow-inner">
+                    <img id="game-pokemon-img" src="" alt="Mystery Pokemon" class="w-full h-full object-contain silhouette transition-all duration-500">
+                    
+                    <div id="game-feedback" class="absolute inset-0 bg-slate-950/90 backdrop-blur-sm rounded-2xl flex flex-col items-center justify-center p-4 opacity-0 pointer-events-none transition-opacity duration-300">
+                        <p id="feedback-text" class="text-2xl font-black mb-1"></p>
+                        <p id="feedback-subtext" class="text-xs font-bold text-slate-300 mb-4"></p>
+                        <button onclick="nextGameRound()" class="px-6 py-2.5 bg-poke-red text-white text-xs font-bold rounded-xl shadow-lg">Další Pokémon</button>
+                    </div>
+                </div>
+
+                <div id="game-options" class="grid grid-cols-2 gap-3 pt-2">
+                    <!-- Dynamic choices -->
+                </div>
+
+            </div>
+        </section>
+
+    </main>
+
+    <div id="pack-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/95 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div class="max-w-4xl w-full text-center space-y-6">
+            <h2 id="pack-opening-title" class="text-2xl sm:text-3xl font-black text-amber-400">Rozbaluji Pokémon Balíček...</h2>
+            
+            <div id="pack-cards-container" class="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4 min-h-[260px]">
+                <!-- Opened 5 cards dynamically appear here -->
+            </div>
+
+            <button id="pack-close-btn" onclick="closePackModal()" class="hidden px-8 py-3 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm rounded-xl shadow-xl">
+                Uložit karty do sbírky
+            </button>
+        </div>
+    </div>
+
+    <div id="detail-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md opacity-0 pointer-events-none transition-all duration-300">
+        <div id="modal-card" class="bg-slate-900 border border-slate-800 rounded-3xl max-w-lg w-full overflow-hidden shadow-2xl transform scale-95 transition-all duration-300 relative">
+            
+            <div class="relative p-6 text-center bg-gradient-to-b from-slate-800 to-slate-900 border-b border-slate-800">
+                <button onclick="closeModal()" class="absolute top-4 right-4 p-2 rounded-full bg-slate-950/60 text-slate-300 hover:text-white">
+                    <i data-lucide="x" class="w-5 h-5"></i>
+                </button>
+
+                <span id="modal-id" class="absolute top-4 left-6 text-2xl font-black text-slate-600/50">#000</span>
+
+                <div class="relative w-44 h-44 mx-auto my-2">
+                    <img id="modal-img" src="" alt="Pokemon" class="w-full h-full object-contain filter drop-shadow-2xl">
+                </div>
+
+                <div class="flex items-center justify-center gap-2">
+                    <h3 id="modal-name" class="text-3xl font-black text-white capitalize">---</h3>
+                    <button id="cry-audio-btn" onclick="playPokemonCry()" class="p-2 rounded-full bg-slate-800 hover:bg-slate-700 text-amber-400 transition-all" title="Přehrát zvuk">
+                        <i data-lucide="volume-2" class="w-5 h-5"></i>
+                    </button>
+                </div>
+                <div id="modal-types" class="flex justify-center gap-2 mt-3"></div>
+            </div>
+
+            <div class="p-6 space-y-6 max-h-[55vh] overflow-y-auto">
+                <div class="grid grid-cols-2 gap-4 text-center bg-slate-950/60 rounded-2xl p-4 border border-slate-800">
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Výška</p>
+                        <p id="modal-height" class="text-lg font-black text-white">0 m</p>
+                    </div>
+                    <div>
+                        <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">Váha</p>
+                        <p id="modal-weight" class="text-lg font-black text-white">0 kg</p>
+                    </div>
+                </div>
+
+                <div class="space-y-3">
+                    <h4 class="text-xs font-black uppercase text-slate-400 tracking-wider">Základní Statistiky</h4>
+                    <div id="modal-stats-container" class="space-y-2"></div>
+                </div>
+            </div>
+
+            <div class="p-4 bg-slate-950/80 border-t border-slate-800 flex justify-between items-center px-6">
+                <button id="modal-fav-btn" onclick="" class="flex items-center gap-2 text-xs font-bold text-slate-300 hover:text-red-400">
+                    <i data-lucide="heart" class="w-4 h-4" id="modal-fav-icon"></i>
+                    <span id="modal-fav-text">Přidat do oblíbených</span>
+                </button>
+                <button onclick="closeModal()" class="px-5 py-2 bg-slate-800 text-white font-bold text-xs rounded-xl">Zavřít</button>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        // Czech translation dictionary for Pokemon Types
+        const TYPE_TRANSLATIONS = {
+            normal: { name: 'Normální', class: 'type-normal' },
+            fire: { name: 'Ohnivý', class: 'type-fire' },
+            water: { name: 'Vodní', class: 'type-water' },
+            grass: { name: 'Travní', class: 'type-grass' },
+            electric: { name: 'Bleskový', class: 'type-electric' },
+            ice: { name: 'Ledový', class: 'type-ice' },
+            fighting: { name: 'Bojový', class: 'type-fighting' },
+            poison: { name: 'Jedovatý', class: 'type-poison' },
+            ground: { name: 'Zemní', class: 'type-ground' },
+            flying: { name: 'Létající', class: 'type-flying' },
+            psychic: { name: 'Psychický', class: 'type-psychic' },
+            bug: { name: 'Hmyzí', class: 'type-bug' },
+            rock: { name: 'Kamenný', class: 'type-rock' },
+            ghost: { name: 'Duchovní', class: 'type-ghost' },
+            dragon: { name: 'Dračí', class: 'type-dragon' },
+            dark: { name: 'Temný', class: 'type-dark' },
+            steel: { name: 'Ocelový', class: 'type-steel' },
+            fairy: { name: 'Vílí', class: 'type-fairy' }
+        };
+
+        const STAT_NAMES = {
+            hp: 'Životy (HP)',
+            attack: 'Útok',
+            defense: 'Obrana',
+            'special-attack': 'Sp. Útok',
+            'special-defense': 'Sp. Obrana',
+            speed: 'Rychlost'
+        };
+
+        // Generation ID Ranges (Up to Generation 9 - 1025 Pokémons)
+        const GEN_RANGES = {
+            '1': [1, 151],
+            '2': [152, 251],
+            '3': [252, 386],
+            '4': [387, 493],
+            '5': [494, 649],
+            '6': [650, 721],
+            '7': [722, 809],
+            '8': [810, 905],
+            '9': [906, 1025]
+        };
+
+        // State Variables
+        let loadedPokemons = [];
+        let currentOffset = 0;
+        const limitPerPage = 36;
+        let favorites = JSON.parse(localStorage.getItem('pokedex_favs_1025') || '[]');
+        let myCollection = JSON.parse(localStorage.getItem('pokemon_binder') || '[]');
+        let userCoins = parseInt(localStorage.getItem('pokemon_coins') || '1000');
+        let showOnlyFavs = false;
+        let currentGamePokemon = null;
+        let gameScore = 0;
+        let currentAudioUrl = null;
+
+        document.addEventListener('DOMContentLoaded', () => {
+            lucide.createIcons();
+            updateCoinsDisplay();
+            fetchPokemonsBatch();
+            setupEventListeners();
+            updateBinderUI();
+        });
+
+        function updateCoinsDisplay() {
+            document.getElementById('user-coins').textContent = userCoins.toLocaleString('cs-CZ');
+            localStorage.setItem('pokemon_coins', userCoins);
+        }
+
+        function addCoins(amount) {
+            userCoins += amount;
+            updateCoinsDisplay();
+        }
+
+        // Fetch Pokemons in batches
+        async function fetchPokemonsBatch(reset = false) {
+            if (reset) {
+                currentOffset = 0;
+                loadedPokemons = [];
+                document.getElementById('pokemon-grid').innerHTML = '';
+            }
+
+            document.getElementById('pokedex-loader').classList.remove('hidden');
+            document.getElementById('load-more-container').classList.add('hidden');
+
+            try {
+                const response = await fetch(`https://pokeapi.co/api/v2/pokemon?limit=${limitPerPage}&offset=${currentOffset}`);
+                const data = await response.json();
+                
+                const details = await Promise.all(data.results.map(p => fetch(p.url).then(r => r.json())));
+                loadedPokemons = [...loadedPokemons, ...details];
+                currentOffset += limitPerPage;
+
+                document.getElementById('pokedex-loader').classList.add('hidden');
+                document.getElementById('load-more-container').classList.remove('hidden');
+
+                renderGrid();
+                if (!currentGamePokemon) setupGameRound();
+            } catch (err) {
+                console.error("Error fetching Pokemons:", err);
+            }
+        }
+
+        function loadMorePokemons() {
+            fetchPokemonsBatch(false);
+        }
+
+        // Render Cards Grid
+        function renderGrid() {
+            const grid = document.getElementById('pokemon-grid');
+            grid.innerHTML = '';
+
+            const searchValue = document.getElementById('search-input').value.toLowerCase().trim();
+            const selectedGen = document.getElementById('gen-select').value;
+            const selectedType = document.getElementById('type-select').value;
+
+            let filtered = loadedPokemons.filter(p => {
+                const matchesSearch = p.name.toLowerCase().includes(searchValue) || p.id.toString() === searchValue;
+                
+                let matchesGen = true;
+                if (selectedGen !== 'all') {
+                    const [min, max] = GEN_RANGES[selectedGen];
+                    matchesGen = p.id >= min && p.id <= max;
+                }
+
+                const matchesType = selectedType === 'all' || p.types.some(t => t.type.name === selectedType);
+                const matchesFav = !showOnlyFavs || favorites.includes(p.id);
+
+                return matchesSearch && matchesGen && matchesType && matchesFav;
+            });
+
+            filtered.forEach(pokemon => {
+                const isFav = favorites.includes(pokemon.id);
+                const artworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+
+                const card = document.createElement('div');
+                card.className = "bg-slate-900 border border-slate-800 rounded-2xl p-4 hover:border-slate-600 transition-all cursor-pointer relative group flex flex-col justify-between hover:-translate-y-1";
+                
+                card.onclick = (e) => {
+                    if (!e.target.closest('.fav-btn')) openModal(pokemon);
+                };
+
+                const typesHtml = pokemon.types.map(t => {
+                    const translated = TYPE_TRANSLATIONS[t.type.name] || { name: t.type.name, class: 'bg-slate-700 text-white' };
+                    return `<span class="px-2 py-0.5 rounded-md text-[10px] font-black ${translated.class}">${translated.name}</span>`;
+                }).join('');
+
+                card.innerHTML = `
+                    <div class="flex items-center justify-between">
+                        <span class="text-[10px] font-black text-slate-500">#${String(pokemon.id).padStart(3, '0')}</span>
+                        <button class="fav-btn p-1 text-slate-500 hover:text-red-400" onclick="toggleFavorite(event, ${pokemon.id})">
+                            <i data-lucide="heart" class="w-4 h-4 ${isFav ? 'fill-red-500 text-red-500' : ''}"></i>
+                        </button>
+                    </div>
+
+                    <div class="w-24 h-24 mx-auto my-2">
+                        <img src="${artworkUrl}" alt="${pokemon.name}" class="w-full h-full object-contain group-hover:scale-105 transition-transform" loading="lazy">
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-black text-white capitalize text-center mb-2">${pokemon.name}</h3>
+                        <div class="flex justify-center gap-1 flex-wrap">${typesHtml}</div>
+                    </div>
+                `;
+
+                grid.appendChild(card);
+            });
+
+            lucide.createIcons();
+        }
+
+        function setupEventListeners() {
+            document.getElementById('search-input').addEventListener('input', renderGrid);
+            document.getElementById('gen-select').addEventListener('change', () => fetchPokemonsBatch(true));
+            document.getElementById('type-select').addEventListener('change', renderGrid);
+        }
+
+        function toggleFavorite(e, id) {
+            e.stopPropagation();
+            if (favorites.includes(id)) {
+                favorites = favorites.filter(fav => fav !== id);
+            } else {
+                favorites.push(id);
+            }
+            localStorage.setItem('pokedex_favs_1025', JSON.stringify(favorites));
+            renderGrid();
+        }
+
+        function toggleFavFilter() {
+            showOnlyFavs = !showOnlyFavs;
+            const btn = document.getElementById('fav-toggle-btn');
+            const icon = document.getElementById('fav-btn-icon');
+            
+            if (showOnlyFavs) {
+                btn.classList.add('bg-red-500/20', 'border-red-500', 'text-red-400');
+                icon.classList.add('fill-red-400');
+            } else {
+                btn.classList.remove('bg-red-500/20', 'border-red-500', 'text-red-400');
+                icon.classList.remove('fill-red-400');
+            }
+            renderGrid();
+        }
+
+        // Pokemon Modal
+        function openModal(pokemon) {
+            const modal = document.getElementById('detail-modal');
+            const card = document.getElementById('modal-card');
+            const artworkUrl = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${pokemon.id}.png`;
+
+            document.getElementById('modal-id').textContent = `#${String(pokemon.id).padStart(3, '0')}`;
+            document.getElementById('modal-name').textContent = pokemon.name;
+            document.getElementById('modal-img').src = artworkUrl;
+            document.getElementById('modal-height').textContent = `${pokemon.height / 10} m`;
+            document.getElementById('modal-weight').textContent = `${pokemon.weight / 10} kg`;
+
+            currentAudioUrl = pokemon.cries ? (pokemon.cries.latest || pokemon.cries.legacy) : null;
+
+            const typesContainer = document.getElementById('modal-types');
+            typesContainer.innerHTML = pokemon.types.map(t => {
+                const translated = TYPE_TRANSLATIONS[t.type.name] || { name: t.type.name, class: 'bg-slate-700 text-white' };
+                return `<span class="px-3 py-1 rounded-lg text-xs font-black ${translated.class}">${translated.name}</span>`;
+            }).join('');
+
+            const statsContainer = document.getElementById('modal-stats-container');
+            statsContainer.innerHTML = pokemon.stats.map(s => {
+                const statName = STAT_NAMES[s.stat.name] || s.stat.name;
+                const value = s.base_stat;
+                const percentage = Math.min(100, Math.round((value / 180) * 100));
+
+                return `
+                    <div>
+                        <div class="flex justify-between text-xs font-bold mb-1">
+                            <span class="text-slate-400">${statName}</span>
+                            <span class="text-white">${value}</span>
+                        </div>
+                        <div class="w-full bg-slate-950 h-2 rounded-full overflow-hidden">
+                            <div class="bg-poke-red h-full rounded-full" style="width: ${percentage}%"></div>
+                        </div>
+                    </div>
+                `;
+            }).join('');
+
+            const isFav = favorites.includes(pokemon.id);
+            const favBtn = document.getElementById('modal-fav-btn');
+            const favIcon = document.getElementById('modal-fav-icon');
+            const favText = document.getElementById('modal-fav-text');
+
+            if (isFav) {
+                favIcon.classList.add('fill-red-500', 'text-red-500');
+                favText.textContent = 'Odebrat z oblíbených';
+            } else {
+                favIcon.classList.remove('fill-red-500', 'text-red-500');
+                favText.textContent = 'Přidat do oblíbených';
+            }
+
+            favBtn.onclick = (e) => {
+                toggleFavorite(e, pokemon.id);
+                openModal(pokemon);
+            };
+
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-95');
+            card.classList.add('scale-100');
+        }
+
+        function closeModal() {
+            const modal = document.getElementById('detail-modal');
+            const card = document.getElementById('modal-card');
+            modal.classList.add('opacity-0', 'pointer-events-none');
+            card.classList.remove('scale-100');
+            card.classList.add('scale-95');
+        }
+
+        function playPokemonCry() {
+            if (currentAudioUrl) {
+                const audio = new Audio(currentAudioUrl);
+                audio.play().catch(e => console.log('Audio playback prevented'));
+            }
+        }
+
+        // --- BOOSTER PACK OPENING SIMULATOR ---
+        function buyAndOpenPack(edition, cost) {
+            if (userCoins < cost) {
+                alert("Nemáte dostatek Kč! Splňte kvíz nebo klikněte na + u peněženky.");
+                return;
+            }
+
+            userCoins -= cost;
+            updateCoinsDisplay();
+
+            const modal = document.getElementById('pack-modal');
+            const container = document.getElementById('pack-cards-container');
+            const closeBtn = document.getElementById('pack-close-btn');
+
+            container.innerHTML = '';
+            closeBtn.classList.add('hidden');
+            modal.classList.remove('opacity-0', 'pointer-events-none');
+
+            // Generate 5 random cards based on edition
+            let maxId = 1025;
+            if (edition === '151') maxId = 151;
+
+            const packCards = [];
+            for (let i = 0; i < 5; i++) {
+                const randId = Math.floor(Math.random() * maxId) + 1;
+                const isSecret = i === 4 && Math.random() < 0.3; // 30% chance for ultra rare
+                const isRare = i >= 3;
+                
+                let rarity = 'Common';
+                let val = Math.floor(Math.random() * 30) + 10;
+                if (isSecret) { rarity = 'Secret Ultra Rare'; val = Math.floor(Math.random() * 800) + 300; }
+                else if (isRare) { rarity = 'Holo Rare'; val = Math.floor(Math.random() * 150) + 50; }
+
+                packCards.push({
+                    id: randId,
+                    rarity: rarity,
+                    value: val,
+                    img: `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${randId}.png`
+                });
+            }
+
+            // Reveal cards one by one with delay
+            packCards.forEach((card, index) => {
+                setTimeout(() => {
+                    const cardEl = document.createElement('div');
+                    const isHolo = card.rarity.includes('Ultra') || card.rarity.includes('Holo');
+                    
+                    cardEl.className = `bg-slate-900 border-2 ${isHolo ? 'border-amber-400 holo-card' : 'border-slate-700'} rounded-2xl p-4 flex flex-col justify-between items-center text-center shadow-xl transform scale-0 transition-all duration-500`;
+                    
+                    cardEl.innerHTML = `
+                        <span class="text-[9px] font-black uppercase px-2 py-0.5 rounded ${isHolo ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-300'}">${card.rarity}</span>
+                        <img src="${card.img}" class="w-24 h-24 object-contain my-2">
+                        <p class="text-xs font-black text-emerald-400">+${card.value} Kč</p>
+                    `;
+
+                    container.appendChild(cardEl);
+                    setTimeout(() => cardEl.classList.remove('scale-0'), 50);
+
+                    // Add to user collection
+                    myCollection.push(card);
+                    localStorage.setItem('pokemon_binder', JSON.stringify(myCollection));
+
+                    if (index === 4) {
+                        closeBtn.classList.remove('hidden');
+                        updateBinderUI();
+                    }
+                }, index * 400);
+            });
+        }
+
+        function closePackModal() {
+            document.getElementById('pack-modal').classList.add('opacity-0', 'pointer-events-none');
+        }
+
+        function updateBinderUI() {
+            const grid = document.getElementById('binder-grid');
+            const empty = document.getElementById('empty-binder');
+            grid.innerHTML = '';
+
+            document.getElementById('total-cards-count').textContent = myCollection.length;
+            const totalVal = myCollection.reduce((acc, c) => acc + c.value, 0);
+            document.getElementById('total-cards-value').textContent = `${totalVal.toLocaleString('cs-CZ')} Kč`;
+
+            if (myCollection.length === 0) {
+                empty.classList.remove('hidden');
+                return;
+            }
+
+            empty.classList.add('hidden');
+
+            myCollection.slice().reverse().forEach(card => {
+                const cardEl = document.createElement('div');
+                const isHolo = card.rarity.includes('Ultra') || card.rarity.includes('Holo');
+                
+                cardEl.className = `bg-slate-900 border ${isHolo ? 'border-amber-400/80 holo-card' : 'border-slate-800'} rounded-xl p-3 text-center flex flex-col justify-between items-center`;
+                cardEl.innerHTML = `
+                    <span class="text-[8px] font-black uppercase px-1.5 py-0.5 rounded ${isHolo ? 'bg-amber-400 text-slate-950' : 'bg-slate-800 text-slate-400'}">${card.rarity}</span>
+                    <img src="${card.img}" class="w-20 h-20 object-contain my-2">
+                    <p class="text-xs font-black text-emerald-400">${card.value} Kč</p>
+                `;
+                grid.appendChild(cardEl);
+            });
+        }
+
+        // --- QUIZ MINIGAME ---
+        function setupGameRound() {
+            if (loadedPokemons.length === 0) return;
+
+            document.getElementById('game-feedback').classList.add('opacity-0', 'pointer-events-none');
+
+            const randomIndex = Math.floor(Math.random() * loadedPokemons.length);
+            currentGamePokemon = loadedPokemons[randomIndex];
+
+            const img = document.getElementById('game-pokemon-img');
+            img.src = `https://raw.githubusercontent.com/PokeAPI/sprites/master/sprites/pokemon/other/official-artwork/${currentGamePokemon.id}.png`;
+            img.classList.add('silhouette');
+
+            const options = [currentGamePokemon];
+            while (options.length < 4) {
+                const randomOpt = loadedPokemons[Math.floor(Math.random() * loadedPokemons.length)];
+                if (!options.some(o => o.id === randomOpt.id)) options.push(randomOpt);
+            }
+            options.sort(() => Math.random() - 0.5);
+
+            const optionsContainer = document.getElementById('game-options');
+            optionsContainer.innerHTML = '';
+
+            options.forEach(opt => {
+                const btn = document.createElement('button');
+                btn.className = "w-full py-3 px-4 bg-slate-950 hover:bg-slate-800 border border-slate-800 rounded-xl font-bold text-xs text-white capitalize transition-all";
+                btn.textContent = opt.name;
+                btn.onclick = () => checkGameAnswer(opt);
+                optionsContainer.appendChild(btn);
+            });
+        }
+
+        function checkGameAnswer(selected) {
+            const img = document.getElementById('game-pokemon-img');
+            img.classList.remove('silhouette');
+
+            const feedback = document.getElementById('game-feedback');
+            const feedbackText = document.getElementById('feedback-text');
+            const feedbackSubtext = document.getElementById('feedback-subtext');
+
+            if (selected.id === currentGamePokemon.id) {
+                gameScore += 1;
+                addCoins(50);
+                document.getElementById('game-score').textContent = gameScore;
+
+                feedbackText.textContent = "Správně! 🎉";
+                feedbackText.className = "text-2xl font-black mb-1 text-emerald-400";
+                feedbackSubtext.textContent = `Získáváte +50 Kč do peněženky!`;
+            } else {
+                gameScore = 0;
+                document.getElementById('game-score').textContent = gameScore;
+
+                feedbackText.textContent = "Špatně! ❌";
+                feedbackText.className = "text-2xl font-black mb-1 text-rose-500";
+                feedbackSubtext.textContent = `Byl to ${currentGamePokemon.name.toUpperCase()}`;
+            }
+
+            feedback.classList.remove('opacity-0', 'pointer-events-none');
+        }
+
+        function nextGameRound() {
+            setupGameRound();
+        }
+
+        // Navigation Tabs
+        function switchTab(tab) {
+            const tabs = ['pokedex', 'store', 'binder', 'game'];
+            tabs.forEach(t => {
+                document.getElementById(`${t}-section`).classList.add('hidden');
+                const navBtn = document.getElementById(`nav-${t}`);
+                if (navBtn) {
+                    navBtn.className = "px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-slate-800 text-slate-300 border border-slate-700 transition-all";
+                }
+            });
+
+            document.getElementById(`${tab}-section`).classList.remove('hidden');
+            const activeNav = document.getElementById(`nav-${tab}`);
+            if (activeNav) {
+                activeNav.className = "px-4 py-2 rounded-xl text-sm font-bold flex items-center gap-2 bg-poke-red text-white shadow-lg shadow-red-500/20 transition-all";
+            }
+        }
+
+        function toggleMobileMenu() {
+            document.getElementById('mobile-menu').classList.toggle('hidden');
+        }
+    </script>
+</body>
+</html>
